@@ -20,7 +20,7 @@ blercodes und die Optimierungsberichte werden miterstellt.
 
 Benchmark-Ausführung
 =
-Der Benchmark kann mit dem PBS-Skript job3d.sh (jobr3d_hawk.sh) in das PBS-System zur
+Der Benchmark kann mit dem PBS-Skript job3d_hawk.sh in das PBS-System zur
 Ausführung eingestellt werden. Die vordefinierten Umgebungsvariablen am Anfang
 der PBS-Skript setzen die wesentlichen Parameter des Benchmarks, wie zum Beispiel
 die minimale und maximale Anzahl der OMP-Threads. Falls die Ausführung mit der
