@@ -21,22 +21,23 @@ if [ "${COMPILER}" == "INTEL" ];  then
   CC=icc
   FF=ifort
   LINKER=ifort
-  OPT_FORT="-O3 -march=sandybridge -qopenmp  -W1 -align array64byte "
-  OPT_ASM_FORT="-O3 -march=sandybridge -qopenmp  -W1  -S -fsource-asm  -qopt-report -align array64byte"  #Use -qopt-report-routine:function_name to filter the assemble output 
-  OPT_ASM_CC_OPT="-O3 -W -vec-threshold0  -march=sandybridge -S -fsource-asm  -qopt-report -fno-alias"
+  OPT_FORT="-O3 -march=core-avx2 -qopenmp  -W1 -align array64byte "
+  OPT_ASM_FORT="-O3 -march=core-avx2 -qopenmp  -W1  -S -fsource-asm  -qopt-report -qopt-report-routine:laplacian_simple_block3d -align array64byte"
+  OPT_ASM_CC_OPT="-W -vec-threshold0  -march=core-avx2 -S -fsource-asm  -qopt-report -fno-alias"
   OPT_LINKER="-O3 -qopenmp"
-  OPT_CC="-O3 -march=sandybridge -W -qopenmp -fno-alias -qopt-report"
+  OPT_CC="-O3 -march=core-avx2 -W -qopenmp -fno-alias -qopt-report"
+
   #Für Haswell, Skylake und ROME verwende -march=core-avx2
 else
   module load compiler/gnu
   CC=gcc #x86_64-redhat-linuxcc
   FF=gfortran
   LINKER=gfortran
-  OPT_FORT="-O3    -march=sandybridge -fopenmp -Wall -ffree-line-length-1024"
-  OPT_ASM_FORT="-O3  -march=sandybridge -fopenmp -Wall  -fopt-info-vec -fopt-info-vec-optimized -S -fverbose-asm -ffree-line-length-1024"
-  OPT_ASM_CC_OPT="-O3 -W -march=sandybridge -fopt-info-vec -fopt-info-vec-optimized -S -fverbose-asm -fno-strict-aliasing"
+  OPT_FORT="-O3    -march=haswell -fopenmp -Wall -ffree-line-length-1024"
+  OPT_ASM_FORT="-O3  -march=haswell -fopenmp -Wall  -fopt-info-vec -fopt-info-vec-optimized -S -fverbose-asm -ffree-line-length-1024"
+  OPT_ASM_CC_OPT="-W -march=haswell -fopt-info-vec -fopt-info-vec-optimized -S -fverbose-asm -fno-strict-aliasing"
   OPT_LINKER="-O3   -fopenmp"
-  OPT_CC="-O3 -march=sandybridge  -fno-strict-aliasing -fopt-info-vec -fopt-info-vec-optimized  -Wall"
+  OPT_CC="-O3 -fno-strict-aliasing -fopt-info-vec -fopt-info-vec-optimized  -Wall"
 fi
 
 set -x
