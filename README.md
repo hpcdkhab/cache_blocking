@@ -3,9 +3,9 @@ Benchmark Cache Blocking
 
 German (english follow):
 
-==================================
+=
  Benchmark „Cache-Blocking“
-==================================
+=
 
 Der Benchmark „Cache-Blocking“ berechnet auf dem dreidimensionales Gebiet D ≡
 [0, 1] × [0, 1] × [0, 1] ⊂ R 3 die zweite Ableitung einer zweimal differenzierbaren Funk-
@@ -23,9 +23,9 @@ Threads und verschiedenen Optimierungsparametern konfiguriert werden. Es sind
 fünf Berechnungsmethoden für den 27-Point Stencil des 3D Laplace-Operators im-
 plementiert.
 
-==================================
+=
 3D-Laplace implementierung Simple3d
-==================================
+=
 
 Die erste Methode laplacian_simple3d() gehört zum Fortran-Modul mod_
 laplacian_simple3d 2 . Um die Methode im Hauptprogramm sichtbar zu machen,
@@ -48,9 +48,9 @@ auf den Fortran-Arrays uu3d und dd3d wie die Simple3d Methode.
 Der Unterschied besteht darin, dass das Gebiet D blockweise duchgegangen wird.
 Dadurch versucht man die Cache-Wiederverwendung zu erhöhen.
 
-==================================
+=
 3D-Laplace implementierung Block3d
-==================================
+=
 
 Im zweiten Modul mod_laplacian_block3d wird das Blocking des Gebietes in den Untergebieten 
 nicht „virtuell“, sondern direkt in der Datenstruktur der Arrays implementiert.
@@ -61,9 +61,9 @@ der benachbarten Blöcken speichern. Somit kann die zweite Ableitung für alle Z
 eines Blockes berechnet werden, ohne auf die Datenbereiche der benachbarten Blöcke
 zu zugreifen,
 
-==========================================
+=
 3D-Laplace implementierung Block3d Unroll
-===========================================
+=
 
 Die  Methode laplacian_block3d_unroll() aus dem Modul mod_c_laplacian_block3d
 unterscheidet sich von der Methode Block3d darin, dass die Berechnung der
@@ -83,9 +83,9 @@ Die Sourcen des Benchmarks „Cache-Blocking“ werden mit dem Bash-Skript comp3
 kompiliert. Das einzige Argument ist der Compilername. Das Programm, die Assem-
 blercodes und die Optimierungsberichte werden miterstellt.
 
-=====================
+=
 Benchmark-Ausführung
-=====================
+=
 
 Der Benchmark kann mit dem PBS-Skript job3d.sh in das PBS-System zur
 Ausführung eingestellt werden. Die vordefinierten Umgebungsvariablen am Anfang
@@ -95,9 +95,9 @@ unterschiedlichen Anzahl der Threads eingestellt ist, wird der Benchmark mehrmal
 in einem Bash-Loop gestartet (siehe job3d.sh) und erstellt je eine Statistik-Datei
 per Thread. Die Dateien werden im Verzeichnis data3d/data_JOBID gespeichert. 
 
-=====================
+=
 Benchmark-Parameter
-=====================
+=
 
 Der Benchmark hat viele Parameter, weil das Hauptprogramm in einem Lauf mehrere
 Gebietsgröße und Gebietsaufteilungen testen kann. Die zu testende Methode, die
@@ -149,9 +149,9 @@ den Cores in der lexikografischen Ordnung zugewiesen.
 
 -numa_cores: Anzahl der Cores in einem NUMA-Node;
 
-=====================
+=
 Benchmark-Ausgabe
-=====================
+=
 
 Nach der Ausführung werden die Statistikdaten im CVS-Format gespeichert. Die
 Statistikdaten werden mit der WRITE-Anweisung für jede Gebiets- und Blockgröße
@@ -177,9 +177,9 @@ merisch berechneten zweiten Ableitung dd;
 
 |xx-dd|/|xx|: Relativer Fehler;
 
-=====================
+=
 Referencen
-=====================
+=
 
 [52] WikipediA. Laplace-Operator. Accessed: 2020-03-23. Feb. 2020. url: https:
 //de.wikipedia.org/wiki/Laplace-Operator.
