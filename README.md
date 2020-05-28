@@ -20,13 +20,15 @@ blercodes und die Optimierungsberichte werden miterstellt.
 
 Benchmark-Ausführung
 =
-Der Benchmark kann mit dem PBS-Skript job3d.sh in das PBS-System zur
+Der Benchmark kann mit dem PBS-Skript job3d.sh (jobr3d_hawk.sh) in das PBS-System zur
 Ausführung eingestellt werden. Die vordefinierten Umgebungsvariablen am Anfang
 der PBS-Skript setzen die wesentlichen Parameter des Benchmarks, wie zum Beispiel
 die minimale und maximale Anzahl der OMP-Threads. Falls die Ausführung mit der
 unterschiedlichen Anzahl der Threads eingestellt ist, wird der Benchmark mehrmals
 in einem Bash-Loop gestartet (siehe job3d.sh) und erstellt je eine Statistik-Datei
 per Thread. Die Dateien werden im Verzeichnis data3d/data_JOBID gespeichert. 
+
+Note: Passen Sie am Anfang des Job-Scriptes die Umgebungsvariable PROJECT_DIR!
 
 Main
 =
