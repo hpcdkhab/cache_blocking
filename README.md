@@ -3,20 +3,20 @@
 German (english follows):
 
 Der Benchmark „Cache-Blocking“ berechnet auf dem dreidimensionales Gebiet D ≡
-[0, 1] × [0, 1] × [0, 1] ⊂ R 3 die zweite Ableitung einer zweimal differenzierbaren Funk-
-tion f (x, y, z). Dieses mit Hilfe eines linearen Differentialoperators, den sogenannten
-„3D Laplace-Operator“ ∆, berechnet [52].
+[0, 1] × [0, 1] × [0, 1] ⊂ R 3 die zweite Ableitung einer zweimal differenzierbaren 
+Funktion f (x, y, z). Dieses wird mit Hilfe eines linearen Differentialoperators, 
+den sogenannten „3D Laplace-Operator“ ∆, berechnet [52].
 
-Das Diskretisierungsschema des Algorithmus verwendet ein reguläres Gitter mit ei-
-nem Schritt h und den 27-Point Stencil für 3D Laplace-Operator. Der diskretisie-
-rungsfehler des Stencil’s in der sechsten Ordnung O(h^6). Der interessierte Leser
-kann mehr Information über den verwendeten Stencil in [49] finden.
+Das Diskretisierungsschema des Algorithmus verwendet ein reguläres Gitter mit einem
+Schritt h und den 27-Point Stencil für 3D Laplace-Operator. Der diskretisierungsfehler
+des Stencil’s in der sechsten Ordnung O(h^6). Der interessierte Leserkann mehr
+Information über den verwendeten Stencil in [49] finden.
 
 Benchmark-Compilieren
 =
 Die Sourcen des Benchmarks „Cache-Blocking“ werden mit dem Bash-Skript comp3d.sh
-kompiliert. Das einzige Argument ist der Compilername. Das Programm, die Assem-
-blercodes und die Optimierungsberichte werden miterstellt.
+kompiliert. Das einzige Argument ist der Compilername. Das Programm, die Assemblercodes
+und die Optimierungsberichte werden miterstellt.
 
 Benchmark-Ausführung
 =
@@ -35,16 +35,14 @@ Main
 Die Sourcedatei laplacian3d.f90 definiert die Main-Funktion des Benchmarks.
 Der Benchmark kann mit den unterschiedlichen Gittergrößen, der Anzahl der OMP-
 Threads und verschiedenen Optimierungsparametern konfiguriert werden. Es sind
-fünf Berechnungsmethoden für den 27-Point Stencil des 3D Laplace-Operators im-
-plementiert.
+fünf Berechnungsmethoden für den 27-Point Stencil des 3D Laplace-Operators 
+implementiert.
 
 3D-Laplace implementierung Simple3d
 =
 
-Die erste Methode laplacian_simple3d() gehört zum Fortran-Modul mod_
-laplacian_simple3d 2 . Um die Methode im Hauptprogramm sichtbar zu machen,
-wird der Modulname nach dem Fortran-Schlüsselwort use angegeben. 3 Die Methode
-benutzt keine Cache-Blocking-Optimierung.
+Die erste Methode laplacian_simple3d() gehört zum Fortran-Modul mod_laplacian_simple3d.
+Die Methode benutzt keine Cache-Blocking-Optimierung.
 
 Die Funktionswerte einer zweimal differenzierbaren Funktion f (x, y, z) und derren
 zweite Ableitung ∆f (x, y, z) werden in dreidimensionalen Arrays dd3d und uu3d
@@ -72,7 +70,7 @@ die Letzten drei referenzieren der Block selbst. Die Blöcke des Arrays uu_block
 enthalten die Halo-Daten, die die Funktionswerte aus den Zellen der inneren Ränder
 der benachbarten Blöcken speichern. Somit kann die zweite Ableitung für alle Zellen
 eines Blockes berechnet werden, ohne auf die Datenbereiche der benachbarten Blöcke
-zu zugreifen,
+zu zugreifen.
 
 
 3D-Laplace implementierung Block3d Unroll
@@ -93,8 +91,8 @@ und dd_block3d , die Gebietsaufteilungsparameter und die Anzahl der
 Threads. Die OMP-Parallelelisierung ist nicht durchgeführt.
 
 Die Sourcen des Benchmarks „Cache-Blocking“ werden mit dem Bash-Skript comp3d.sh
-kompiliert. Das einzige Argument ist der Compilername. Das Programm, die Assem-
-blercodes und die Optimierungsberichte werden miterstellt.
+kompiliert. Das einzige Argument ist der Compilername. Das Programm, 
+die Assemblercodes und die Optimierungsberichte werden miterstellt.
 
 Benchmark-Parameter
 =
@@ -124,12 +122,12 @@ Parametern angegeben werden. Für die X-Richtung sind es -min_size_x ,
 -max_size_x , -step_size_x . Entsprechend heißen die Intervall-Parameter
 für die Y-, und z-Richtungen.
 
--min_blk_size_x , -max_blk_size_x , -step_blk_size_x : Definition der Block-
-größen in die X-Richtung. Entsprechend heißen die Intervall-Parameter für die
+-min_blk_size_x , -max_blk_size_x , -step_blk_size_x : Definition der Blockgrößen
+in die X-Richtung. Entsprechend heißen die Intervall-Parameter für die
 Y-, und z-Richtungen.
 
--min_time: Minimale Zeit zum Testen der ausgewählten Methode (Mehr als 1 Se-
-kunde ist empfehlenswert).
+-min_time: Minimale Zeit zum Testen der ausgewählten Methode (Mehr als 1 Sekunde
+ist empfehlenswert).
 
 -filepath: Dateiname zur Speicherung der Performance-Statistik;
 
@@ -172,8 +170,8 @@ avg_flops: Durchschnittliche Performance der getesteten Methode;
 
 first_flops: Performance der ersten Ausführung der getesteten Methode;
 
-|xx-dd|: L2-Norm des Fehlers zwischen der analytisch berechneten xx und der num-
-merisch berechneten zweiten Ableitung dd;
+|xx-dd|: L2-Norm des Fehlers zwischen der analytisch berechneten xx und der 
+nummerisch berechneten zweiten Ableitung dd;
 
 |xx-dd|/|xx|: Relativer Fehler;
 
