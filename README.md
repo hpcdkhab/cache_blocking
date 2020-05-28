@@ -1,4 +1,4 @@
- Benchmark „Cache-Blocking“
+ Benchmark Cache-Blocking
 =
 German (english follows):
 
