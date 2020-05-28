@@ -1,7 +1,7 @@
 # cache_blocking
 Benchmark Cache Blocking 
 
-German (english follow):
+German (english follows):
 
 =
  Benchmark „Cache-Blocking“
