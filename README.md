@@ -3,7 +3,7 @@
 German (english follows):
 
 Der Benchmark „Cache-Blocking“ berechnet auf dem dreidimensionales Gebiet D ≡
-[0, 1] × [0, 1] × [0, 1] ⊂ R 3 die zweite Ableitung einer zweimal differenzierbaren 
+[0, 1] × [0, 1] × [0, 1] ⊂ R^3 die zweite Ableitung einer zweimal differenzierbaren 
 Funktion f (x, y, z). Dieses wird mit Hilfe eines linearen Differentialoperators, 
 den sogenannten „3D Laplace-Operator“ ∆, berechnet [52].
 
