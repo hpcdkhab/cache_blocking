@@ -28,7 +28,7 @@ unterschiedlichen Anzahl der Threads eingestellt ist, wird der Benchmark mehrmal
 in einem Bash-Loop gestartet (siehe job3d.sh) und erstellt je eine Statistik-Datei
 per Thread. Die Dateien werden im Verzeichnis data3d/data_JOBID gespeichert. 
 
-Note: Passen Sie am Anfang des Job-Scriptes die Umgebungsvariable PROJECT_DIR!
+Note: Passen Sie am Anfang des Job-Scriptes die Umgebungsvariable PROJECT_DIR an!
 
 Main
 =
