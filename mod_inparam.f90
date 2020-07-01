@@ -36,6 +36,7 @@ type type_inparam
   integer(kind=ik):: min_blk_size_zz !Bloeckgroesse in Z-Richtung
   integer(kind=ik):: max_blk_size_zz !Bloeckgroesse in Z-Richtung
   integer(kind=ik):: step_blk_size_zz !Bloeckgroesse in Z-Richtung
+  integer(kind=ik):: num_repetitions !Anzahl der Wiederholungen
   integer(kind=ik):: check_solution !0 - no check, >0 chek each solution
   integer(kind=ik):: clear_cache !0 - Verdränge Keine Daten aus dem cache! 1-Verdränge Daten aus dem Cache
   integer(kind=ik):: deep_level !0 - Alle JPEGS aus dem Verzeichnis auslesen; > 0 Anzahl der JPEGS zu verarbeiten
@@ -46,10 +47,12 @@ type type_inparam
   character(len=1024) :: filepath !Dateiname für die Performance-Statistik
   character(len=1024) :: jpeg_topdir !Verzeichnis mit JPEG-Dateien
   character(len=1024) :: png_outdir !Verzeichnis für neue JPEG-Dateien
+  character(len=1024) :: profile_filepath !Dateiname mit den Anwendungspahen als Timestamps gespeichert
+  integer(kind=ik) :: has_profile !Ob die Anwendungsphasen, die Timestamps, gespeichert werden
 end type type_inparam
 
-type(type_inparam)   :: input_param
 
+type(type_inparam)   :: input_param
 contains
 
 subroutine input_param_print()
@@ -85,8 +88,10 @@ subroutine input_param_print()
   write(*,'(A,I0)') "max_blk_size_zz:", input_param%max_blk_size_zz
   write(*,'(A,I0)') "step_blk_size_zz:", input_param%step_blk_size_zz
   write(*,'(A,I0)') "check_solution:", input_param%check_solution
+  write(*,'(A,I0)') "num_repetitions:", input_param%num_repetitions
   write(*,'(A,I0)') "clear_cache:", input_param%clear_cache
   write(*,'(A,A)') "filepath:", trim(input_param%filepath)
+  write(*,'(A,A)') "profile_filepath:", trim(input_param%profile_filepath) 
   write(*,'(A,A)') "jpeg_topdir:", trim(input_param%jpeg_topdir)
   write(*,'(A,A)') "png_outdir:", trim(input_param%png_outdir)
   write(*,'(A,I0)') "deep_level:", input_param%deep_level
@@ -95,7 +100,7 @@ subroutine input_param_print()
   write(*,'(A,I0)') "numa_cores:", input_param%numa_cores
   write(*,'(A,I0)') "has_numas:", input_param%has_numas
   write(*,'(A,E13.6)') "scale_coeff:", input_param%scale_coeff
-
+  write(*,'(A,I0)') "has_profile:", input_param%has_profile
 
 end subroutine input_param_print
 
@@ -136,17 +141,20 @@ subroutine input_param_read()
     &//' -min_blk_size_z <int>' &
     &//' -max_blk_size_z <int>' &
     &//' -step_blk_size_z <int>' &
+    &//' -num_repetitions <int>' &
     &//' -filepath <filename>' &
     &//' -check_solution <int>' &
     &//' -clear_cache <int>' &
     &//' -jpeg_topdir <filename>' &
     &//' -png_outdir <filename>' &
+    &//' -profile_filepath <filename>' &
     &//' -deep_level <int>' &
     &//' -check_laplacian <int>' &
     &//' -scale_coeff <real>' &
     &//' -num_numas <int>' &
     &//' -numa_cores <int>' &
     &//' -has_numas <int>' &
+    &//' -has_profile <int>' &
     &//' -help <int>'
     if(extract_command_parameter(cmd,'-help',stop_on_error=.false.,&
                 value=help, syntax=message) ==0) then
@@ -277,7 +285,15 @@ subroutine input_param_read()
   if(extract_command_parameter(cmd,'-numa_cores',stop_on_error=.false.,&
                 value=input_param%numa_cores, syntax=message) /=0) then
   endif
-
+  if(extract_command_parameter(cmd,'-num_repetitions',stop_on_error=.false.,&
+                value=input_param%num_repetitions, syntax=message) /=0) then
+  endif
+  if(extract_command_parameter(cmd,'-profile_filepath',stop_on_error=.false.,&
+                value=input_param%profile_filepath, syntax=message) /=0) then
+  endif
+  if(extract_command_parameter(cmd,'-has_profile',stop_on_error=.false.,&
+                value=input_param%has_profile, syntax=message) /=0) then
+  endif
   if(input_param%size_xx .gt. 0) then
     input_param%min_size_xx=input_param%size_xx
     input_param%max_size_xx=input_param%size_xx
@@ -350,11 +366,13 @@ subroutine input_param_def()
   input_param%min_blk_size_zz=180
   input_param%max_blk_size_zz=180
   input_param%step_blk_size_zz=180
+  input_param%num_repetitions=0
   input_param%check_solution=1
   input_param%clear_cache=1
   input_param%deep_level=0
   input_param%check_laplacian=0
   input_param%scale_coeff=1.0
+  input_param%has_profile=0
   write(input_param%filepath,'(A,I0,4(A,I0,A,I0),A,I0,A)') &
       & "./bench_",input_param%benchmark_id, &
       & "_size_",input_param%min_size_xx,"-",input_param%max_size_xx, &
@@ -365,7 +383,7 @@ subroutine input_param_def()
       & ".csv"
   write(input_param%jpeg_topdir,'(A)') "/nas_home/hpcdkhab/example_cache_blocking/fotos/"
   write(input_param%png_outdir,'(A)') "/nas_home/hpcdkhab/example_cache_blocking/new_fotos/"
-
+  write(input_param%png_outdir,'(A)') "/nas_home/hpcdkhab/example_cache_blocking/data/profile.csv"
 end subroutine input_param_def
 
 subroutine input_param_check()

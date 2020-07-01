@@ -4,7 +4,7 @@
 COMPILER=$1
 #Converting all letters to capital:
 COMPILER=${COMPILER^^}
-ARCH=SANDY
+ARCH=HASWELL
 if [ "${COMPILER}" == "INTEL" ];  then
   echo "Compiler Intel"
 elif [ "${COMPILER}" == "GNU" ];  then
@@ -16,7 +16,7 @@ else
 fi
 
 if [ "${COMPILER}" == "INTEL" ];  then
-  module load compiler/intel 
+  module load compiler/intel/parallel_studio_xe_2019_update5
   set -x
   CC=icc
   FF=ifort
@@ -49,6 +49,7 @@ rm mod_laplacian_block3d.S.${COMPILER}_${ARCH}  cc_laplacian_block3d.S.${COMPILE
 ${CC} ${OPT_CC} timer.c -c
 ${CC} ${OPT_CC} cc_laplacian_block3d.c -c
 ${FF} ${OPT_FORT} mod_types.f90 -c
+${FF} ${OPT_FORT} mod_profile.f90 -c
 ${FF} ${OPT_FORT} mod_cmdline.f90 -c
 ${FF} ${OPT_FORT} mod_inparam.f90 -c
 ${FF} ${OPT_FORT} mod_timer.f90 -c
@@ -56,7 +57,7 @@ ${FF} ${OPT_FORT} mod_miscelanos.f90 -c
 ${FF} ${OPT_FORT} mod_laplacian3d.f90  -c
 ${FF} ${OPT_FORT} mod_laplacian_block3d.f90  -c
 ${FF} ${OPT_FORT} laplacian3d.f90 -c
-${LINKER} ${OPT_LINKER} laplacian3d.o mod_laplacian_block3d.o mod_laplacian3d.f90 mod_miscelanos.o  mod_timer.o mod_inparam.o mod_cmdline.o cc_laplacian_block3d.o  mod_types.o timer.o -lrt -o laplacian3d_${COMPILER}_${ARCH}
+${LINKER} ${OPT_LINKER} laplacian3d.o mod_laplacian_block3d.o mod_laplacian3d.f90 mod_miscelanos.o  mod_timer.o mod_inparam.o mod_cmdline.o cc_laplacian_block3d.o mod_profile.o mod_types.o timer.o -lrt -o laplacian3d_${COMPILER}_${ARCH}
 ${FF} ${OPT_ASM_FORT} mod_laplacian3d.f90 -c -o mod_laplacian3d.S.${COMPILER}_${ARCH}
 ${FF} ${OPT_ASM_FORT} mod_laplacian_block3d.f90 -c -o mod_laplacian_block3d.S.${COMPILER}_${ARCH}
 ${CC} ${OPT_ASM_CC_OPT} cc_laplacian_block3d.c -c -o cc_laplacian_block3d.S.${COMPILER}_${ARCH}

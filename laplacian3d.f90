@@ -9,6 +9,7 @@ program laplacian3d
   use mod_laplacian3d !1. Implementierung der Testroutinen für 3D 27-point Laplacian
   use mod_laplacian_block3d !2. Implementierung der Testroutinen für 3D 27-point Laplacian
   !use mod_c_laplacian_block3d !Interface zur C-Methode für 3D 27-point Laplacian
+  use mod_profile !Speichern die Stamtimes in eine Datei aus
   use OMP_LIB !We use OpenMP threads
 
 implicit none
@@ -40,7 +41,7 @@ implicit none
   real(kind=rk), allocatable, dimension(:,:) ::error_norm2 !Absolute und relative Norm des Fehlervektors ||uu-xx||_2 zur Korrektheitsprüfung
   real(kind=trk) :: numr_byte !Bytes zum Lesen
   real(kind=trk) :: numw_byte !Bytes zum Schreiben
-  integer(kind=ik) :: tt,ttt,num_rep,num_rep_first !Testindexen
+  integer(kind=ik) :: tt,tt1,tt2,tt3,tt4,tt5,tt6,ttt,num_rep,num_rep_first !Testindexen
   integer(kind=ik) :: curr_size, curr_size_xx, curr_size_yy, curr_size_zz !Gebietsgroeße im laufenden Test
   integer(kind=ik) :: curr_blk_size_xx, curr_blk_size_yy, curr_blk_size_zz !Blockgroeße im laufenden Test
   integer(kind=ik) :: num_timer_tests !Anzahl von Messungen für die Bestimmung der Timergenauigkeit
@@ -53,6 +54,7 @@ implicit none
   integer(kind=ik) :: lap_min_time_idx,lap_min_ftime_idx
   real(kind=ik) :: lap_min_time, tmp_real
   real(kind=ik) :: lap_min_ftime
+  type(profile_type),dimension(:),allocatable :: profiles
   
   !Parse die Arguments für die Benchmark Konfiguration
   call input_param_read()
@@ -128,6 +130,7 @@ implicit none
   allocate(first_times(num_tests))
   allocate(valid(num_tests))
   allocate(error_norm2(4,num_tests))
+  allocate(profiles(6*num_tests))
   !Ueberprüfe die Timer-Aufloesung
   num_timer_tests=int(1.0e6)
   ticks_in_sec=1.0_trk/sec_tsc_cycle()
@@ -200,10 +203,16 @@ implicit none
   write(perf_unit,'(A)',advance="no") "has_pinning;"
   write(perf_unit,'(A)',advance="no") "num_numas;"
   write(perf_unit,'(A)',advance="no") "numa_cores;"
-  write(perf_unit,'(A)') "jobid;"
+  write(perf_unit,'(A)',advance="yes") "jobid;"
   close(perf_unit)
   !Fuehre die Tests für die angegebenen Gebiets- und Blockgroeßen aus
   tt=0
+  tt1=0
+  tt2=0
+  tt3=0
+  tt4=0
+  tt5=0
+  tt6=0
   do curr_size_xx=min_size_xx, max_size_xx, step_size_xx
     do curr_size_yy=min_size_yy, max_size_yy, step_size_yy
       do curr_size_zz=min_size_zz, max_size_zz, step_size_zz
@@ -211,6 +220,18 @@ implicit none
     do curr_blk_size_yy=min_blk_size_yy, max_blk_size_yy, step_blk_size_yy
       do curr_blk_size_zz=min_blk_size_zz, max_blk_size_zz, step_blk_size_zz
         tt=tt+1
+        tt1=(tt-1)*6+1
+        tt2=(tt-1)*6+2
+        tt3=(tt-1)*6+3
+        tt4=(tt-1)*6+4
+        tt5=(tt-1)*6+5
+        tt6=(tt-1)*6+6
+        profiles(tt1)%id=tt1
+        profiles(tt2)%id=tt2
+        profiles(tt3)%id=tt3
+        profiles(tt4)%id=tt4
+        profiles(tt5)%id=tt5
+        profiles(tt6)%id=tt6
         write(*, "(79('-'))")
         curr_size = curr_size_xx*curr_size_yy*curr_size_zz
         num_flops=real(curr_size,kind=trk)*46.0_trk
@@ -257,57 +278,83 @@ implicit none
         !und Initialisiere das Feld uu (3d- und block3d- Implementierung)
         select case (benchmark_id)
           case(0) !3d:
+            call get_time_stamp(profiles(tt1)%start_time_sec, profiles(tt1)%start_time_nanosec)
             call alloc_mem3d(curr_size_xx, curr_size_yy, curr_size_zz)
             call init_uu3d()
+            call get_time_stamp(profiles(tt1)%end_time_sec, profiles(tt1)%end_time_nanosec)
           case(1) !3d blocked loop:
+            call get_time_stamp(profiles(tt1)%start_time_sec, profiles(tt1)%start_time_nanosec)
             call alloc_mem3d(curr_size_xx, curr_size_yy, curr_size_zz)
             call init_uu3d()
+            call get_time_stamp(profiles(tt1)%end_time_sec, profiles(tt1)%end_time_nanosec)
           case(2) !block3d:
+            call get_time_stamp(profiles(tt1)%start_time_sec, profiles(tt1)%start_time_nanosec)
             call alloc_mem_block3d(domain_decomp)
             call init_uu_block3d()
+            call get_time_stamp(profiles(tt1)%end_time_sec, profiles(tt1)%end_time_nanosec)
           case(3) !block3d optimmiert:
+            call get_time_stamp(profiles(tt1)%start_time_sec, profiles(tt1)%start_time_nanosec)
             call alloc_mem_block3d(domain_decomp)
             call init_uu_block3d()
+            call get_time_stamp(profiles(tt1)%end_time_sec, profiles(tt1)%end_time_nanosec)
           case(4) !block3d C-Implementierung
+            call get_time_stamp(profiles(tt1)%start_time_sec, profiles(tt1)%start_time_nanosec)
             call alloc_mem_block3d(domain_decomp)
             call init_uu_block3d()
+            call get_time_stamp(profiles(tt1)%end_time_sec, profiles(tt1)%end_time_nanosec)
           case default
             write(*,'(A,I0)') "Error: Falsche Benchamark ID ", benchmark_id
             stop
         end select
+        write(profiles(tt1)%label,'(A)') "init_uu3d"
         !Der erste Durchlauf eines Testes
         select case (benchmark_id)
           case (0) !3d:
+            call get_time_stamp(profiles(tt2)%start_time_sec, profiles(tt2)%start_time_nanosec)
             if(input_param%clear_cache .gt.0) call init_uu3d()
             start_tick=getrdtsc() 
             call laplacian_simple3d()
             end_tick=getrdtsc()
+            call get_time_stamp(profiles(tt2)%end_time_sec, profiles(tt2)%end_time_nanosec)
           case (1) !3d and blocked loop:
+            call get_time_stamp(profiles(tt2)%start_time_sec, profiles(tt2)%start_time_nanosec)
             if(input_param%clear_cache .gt.0) call init_uu3d()
             start_tick=getrdtsc() 
             call laplacian_simple_vblocked3d(domain_decomp%blk_num_jj, &
                              & domain_decomp%blk_num_ii,domain_decomp%blk_num_kk)
             end_tick=getrdtsc()
+            call get_time_stamp(profiles(tt2)%end_time_sec, profiles(tt2)%end_time_nanosec)
           case (2) !block3d:
+            call get_time_stamp(profiles(tt2)%start_time_sec, profiles(tt2)%start_time_nanosec)
             if(input_param%clear_cache .gt.0) call init_uu_block3d()
             start_tick=getrdtsc() 
             call laplacian_block3d()
             end_tick=getrdtsc() 
+            call get_time_stamp(profiles(tt2)%end_time_sec, profiles(tt2)%end_time_nanosec)
           case (3) !block3d optimiert:
+            call get_time_stamp(profiles(tt2)%start_time_sec, profiles(tt2)%start_time_nanosec)
             if(input_param%clear_cache .gt.0) call init_uu_block3d()
             start_tick=getrdtsc() 
             call laplacian_block3d_unroll()
             end_tick=getrdtsc() 
+            call get_time_stamp(profiles(tt2)%end_time_sec, profiles(tt2)%end_time_nanosec)
           case (4) !block3d C-Implementierung
+            call get_time_stamp(profiles(tt2)%start_time_sec, profiles(tt2)%start_time_nanosec)
             if(input_param%clear_cache .gt.0) call init_uu_block3d()
             start_tick=getrdtsc()
             call laplacian_block3d_cc(uu_block3d, dd_block3d,&
                 &  domain_decomp, num_threads)
             end_tick=getrdtsc() 
+            call get_time_stamp(profiles(tt2)%end_time_sec, profiles(tt2)%end_time_nanosec)
           case default
             write(*,'(A,I0)') "Error: Falsche Benchamark ID ", benchmark_id
             stop
         end select
+        if(input_param%clear_cache .gt.0) then
+          write(profiles(tt2)%label,'(A)') "init_uu3d+1.simple3d"
+        else
+          write(profiles(tt2)%label,'(A)') "1.simple3d"
+        endif
         ticks=ticks+real(end_tick-start_tick,kind=trk)
         time=ticks/ticks_in_sec
         !Sammele die Statistik für der ersten Durchlauf
@@ -317,7 +364,11 @@ implicit none
         if(min_time .lt. time) then
           min_time=min_time*time
         endif
-        num_rep_first = int(1.0*min_time/time,kind=ik)
+        if (min_time < 1e-6) then
+          num_rep_first=input_param%num_repetitions
+        else
+          num_rep_first = int(1.0*min_time/time,kind=ik)+input_param%num_repetitions
+        endif
         if(input_param%verbosity .gt. 1) then
           write(*,'(A,E13.6,A)') "Der erste Durchlauf dauerte: ", time, " s;"
           write(*,'(A,E13.6,A)') "Performance: ", perf_first(tt), " FLOPS;"
@@ -325,9 +376,10 @@ implicit none
         endif
         !Wiederhole den Test num_rep Mal, jedoch minimum min_time_ticks
         ticks=0.0_trk
-        num_rep=0_trk
+        num_rep=0
         select case (benchmark_id)
           case (0) !3d:
+            call get_time_stamp(profiles(tt3)%start_time_sec, profiles(tt3)%start_time_nanosec)
             do while (ticks .lt. min_time_ticks)
               num_rep=num_rep+num_rep_first
               start_tick=getrdtsc() 
@@ -339,7 +391,9 @@ implicit none
                 ticks=ticks+real(end_tick-start_tick,kind=trk)
               end do
             enddo
+            call get_time_stamp(profiles(tt3)%end_time_sec, profiles(tt3)%end_time_nanosec)
           case (1) !3d and loop blocked:
+            call get_time_stamp(profiles(tt3)%start_time_sec, profiles(tt3)%start_time_nanosec)
             do while (ticks .lt. min_time_ticks)
               num_rep=num_rep+num_rep_first
               do ttt=1, num_rep
@@ -351,18 +405,22 @@ implicit none
                 ticks=ticks+real(end_tick-start_tick,kind=trk)
               end do
             enddo
+            call get_time_stamp(profiles(tt3)%end_time_sec, profiles(tt3)%end_time_nanosec)
           case (2) !block3d:
+            call get_time_stamp(profiles(tt3)%start_time_sec, profiles(tt3)%start_time_nanosec)
             do while (ticks .lt. min_time_ticks)
               num_rep=num_rep+num_rep_first
               do ttt=1, num_rep
                 if(input_param%clear_cache .gt.0) call init_uu_block3d()
-                start_tick=getrdtsc() 
+                start_tick=getrdtsc()
                 call laplacian_block3d()
                 end_tick=getrdtsc()
                 ticks=ticks+real(end_tick-start_tick,kind=trk)
               end do
             enddo
+            call get_time_stamp(profiles(tt3)%end_time_sec, profiles(tt3)%end_time_nanosec)
           case (3) !block3d optimiert:
+            call get_time_stamp(profiles(tt3)%start_time_sec, profiles(tt3)%start_time_nanosec)
             do while (ticks .lt. min_time_ticks)
               num_rep=num_rep+num_rep_first
               do ttt=1, num_rep
@@ -373,8 +431,10 @@ implicit none
                 ticks=ticks+real(end_tick-start_tick,kind=trk)
               end do
             enddo
+            call get_time_stamp(profiles(tt3)%end_time_sec, profiles(tt3)%end_time_nanosec)
           case (4) !block3d C-Implementierung
-            do while (ticks .lt. min_time_ticks)
+              call get_time_stamp(profiles(tt3)%start_time_sec, profiles(tt3)%start_time_nanosec)
+              do while (ticks .lt. min_time_ticks)
               num_rep=num_rep+num_rep_first
               do ttt=1, num_rep
                 if(input_param%clear_cache .gt.0) call init_uu_block3d()
@@ -385,11 +445,16 @@ implicit none
                 ticks=ticks+real(end_tick-start_tick,kind=trk)
               end do
             enddo
+            call get_time_stamp(profiles(tt3)%end_time_sec, profiles(tt3)%end_time_nanosec)
           case default
             write(*,'(A,I0)') "Error: Falsche Benchamark ID ", benchmark_id
             stop
         end select                
-        
+         if(input_param%clear_cache .gt.0) then
+           write(profiles(tt3)%label,'(A)') "init_uu3d+simple3d"
+         else
+           write(profiles(tt3)%label,'(A)') "simple3d"
+         endif    
         time=ticks/ticks_in_sec
         !Sammele die Statistik
         allticks(tt)=ticks
@@ -405,6 +470,7 @@ implicit none
         rbytes(tt)=real(numr_byte,kind=trk)*real(num_rep,kind=trk)
         wbytes(tt)=real(numw_byte,kind=trk)*real(num_rep,kind=trk)
         num_reps(tt)=num_rep
+        call get_time_stamp(profiles(tt4)%start_time_sec, profiles(tt4)%start_time_nanosec)
         if(input_param%check_solution .gt. 0) then
           !Korrektheitsprüfung
           select case (benchmark_id)
@@ -422,7 +488,9 @@ implicit none
         else
           error_norm2(1:4,tt)=0.0
         end if
-
+        call get_time_stamp(profiles(tt4)%end_time_sec, profiles(tt4)%end_time_nanosec)
+        write(profiles(tt4)%label,'(A)') "check3d"
+        call get_time_stamp(profiles(tt5)%start_time_sec, profiles(tt5)%start_time_nanosec)
         if(input_param%verbosity .gt. 1) then
           !Performance Ausgabe
           write(*,'(A,I0,A)') "Durchlaeufe: ", num_rep,";"
@@ -453,6 +521,8 @@ implicit none
             & (rbytes(tt)+2.0_trk*wbytes(tt)) &
             & /allticks(tt)," B/tick;";
         endif
+        call get_time_stamp(profiles(tt5)%end_time_sec, profiles(tt5)%end_time_nanosec)
+        write(profiles(tt5)%label,'(A)') "std-output"
         !Deallokiere Speicher
         select case (benchmark_id)
           case (0) !3d:
@@ -469,7 +539,7 @@ implicit none
             write(*,'(A,I0)') "Error: Falsche Benchmark ID ", benchmark_id
             stop
         end select
-
+        call get_time_stamp(profiles(tt6)%start_time_sec, profiles(tt6)%start_time_nanosec)
         if(input_param%verbosity .gt. 1) then
           write(*,'(A,A)',advance="yes") "Open file:",trim(input_param%filepath)
         endif
@@ -495,7 +565,7 @@ implicit none
         write(perf_unit,'(E16.9,A)',advance="no") perf_first(tt),";"
         write(perf_unit,'(E16.9,A)',advance="no") perf_avg(tt),";"
         write(perf_unit,'(E16.9,A)',advance="no") (rbytes(tt) &
-            +wbytes(tt))/times(tt), ";"
+              +wbytes(tt))/times(tt), ";"
         write(perf_unit,'(E16.9,A)',advance="no") times(tt),";"
         write(perf_unit,'(E16.9,A)',advance="no") first_times(tt),";"
         write(perf_unit,'(E16.9,A)',advance="no") times(tt)/num_reps(tt),";"
@@ -521,7 +591,9 @@ implicit none
         if(input_param%verbosity .gt. 1) then
           write(*,'(A,A)',advance="yes") "Close file:",trim(input_param%filepath)
         endif
-       close(perf_unit)
+        close(perf_unit)
+        call get_time_stamp(profiles(tt6)%end_time_sec, profiles(tt6)%end_time_nanosec)
+        write(profiles(tt6)%label,'(A)') "file-output"
       end do
     end do
   end do
@@ -585,6 +657,10 @@ implicit none
       end do
     end do
   end do
+  if(input_param%has_profile) then
+    call profile_write(profiles,input_param%profile_filepath)
+  endif
+ 
   if(allocated(flop)) deallocate(valid)
   if(allocated(flop)) deallocate(flop)
   if(allocated(perf_first)) deallocate(perf_first)
@@ -602,6 +678,7 @@ implicit none
   if(allocated(times)) deallocate(times)
   if(allocated(first_times)) deallocate(first_times)
   if(allocated(error_norm2)) deallocate(error_norm2)
+  if(allocated(profiles)) deallocate(profiles)
 
 end program laplacian3d
 
